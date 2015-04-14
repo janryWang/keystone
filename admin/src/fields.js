@@ -22,6 +22,7 @@ module.exports = {
 	number:           require('../../fields/types/number/NumberField'),
 	numberarray:      require('../../fields/types/numberarray/NumberArrayField'),
 	password:         require('../../fields/types/password/PasswordField'),
+	ossfiles:         require('../../fields/types/oosfiles/OssFilesField'),
 	relationship:     require('../../fields/types/relationship/RelationshipField'),
 	s3file:           require('../../fields/types/s3file/S3FileField'),
 	select:           require('../../fields/types/select/SelectField'),
