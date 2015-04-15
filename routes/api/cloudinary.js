@@ -1,25 +1,26 @@
-var cloudinary = require('cloudinary'),
-	keystone = require('../../');
+var cloudinary = require('cloudinary');
 
 exports = module.exports = {
 
+
+	/**
+	 * Upload Cloudinary Image
+	 * @param  {[type]} req [description]
+	 * @param  {[type]} res [description]
+	 * @return {[type]}     [description]
+	 */
 	upload: function(req, res) {
 		if(req.files && req.files.file){
-			var options = {};
+			cloudinary.uploader.upload(req.files.file.path, function(result) { 
 
-			if (keystone.get('wysiwyg cloudinary images filenameAsPublicID')) {
-				options.public_id = req.files.file.originalname.substring(0, req.files.file.originalname.lastIndexOf('.'));
-			}
-
-			cloudinary.uploader.upload(req.files.file.path, function(result) {
 				if (result.error) {
-					res.json({ error: { message: result.error.message } });
+					res.send('{"error":{"message":"' + result.error.message + '"}}');
 				} else {
-					res.json({ image: { url: result.url } });
+					res.send('{"image":{"url":"' + result.url + '"}}');
 				}
-			}, options);
+			});
 		} else {
-			res.json({ error: { message: 'No image selected' } });
+			res.send('{"error":{"message":"No image selected"}}');
 		}
 	},
 
@@ -30,7 +31,7 @@ exports = module.exports = {
 
 		cloudinary.api.resources(function(result) {
 			if (result.error) {
-				res.json({ error: { message: result.error.message } });
+				res.send('{"error":{"message":"' + result.error.message + '"}}');
 			} else {
 				res.json({
 					next: result.next_cursor,
@@ -48,7 +49,7 @@ exports = module.exports = {
 	get: function(req, res) {
 		cloudinary.api.resource(req.query.id, function(result) {
 			if (result.error) {
-				res.json({ error: { message: result.error.message } });
+				res.send('{"error":{"message":"' + result.error.message + '"}}');
 			} else {
 				res.json({ item: result });	
 			}

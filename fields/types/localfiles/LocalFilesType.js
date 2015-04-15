@@ -10,8 +10,7 @@ var fs = require('fs-extra'),
 	util = require('util'),
 	utils = require('keystone-utils'),
 	super_ = require('../Type'),
-	async = require('async'),
-	prepost = require('../../../lib/prepost');
+	async = require('async');
 
 /**
  * localfiles FieldType Constructor
@@ -20,10 +19,18 @@ var fs = require('fs-extra'),
  */
 
 function localfiles(list, path, options) {
-	prepost.mixin(this)
-		.register('pre:move', 'post:move');
+	
 	this._underscoreMethods = ['format', 'uploadFiles'];
 	this._fixedSize = 'full';
+
+	// event queues
+	this._pre = {
+		move: [] // Before file is moved into final destination
+	};
+
+	this._post = {
+		move: [] // After file is moved into final destination
+	};
 
 	// TODO: implement filtering, usage disabled for now
 	options.nofilter = true;
@@ -38,7 +45,8 @@ function localfiles(list, path, options) {
 		options.overwrite = true;
 	}
 
-	localfiles.super_.call(this, list, path, options);
+	localfiles.super_.call(this, list, path, options);//调用父类Type构造函数,同时上下文切换为当前上下文，
+													  // 同时将当前list与当前字段路径和字段配置传给父类构造函数
 
 	// validate destination dir
 	if (!options.dest) {
@@ -48,11 +56,11 @@ function localfiles(list, path, options) {
 
 	// Allow hook into before and after
 	if (options.pre && options.pre.move) {
-		this.pre('move', options.pre.move);
+		this._pre.move = this._pre.move.concat(options.pre.move);
 	}
 
 	if (options.post && options.post.move) {
-		this.post('move', options.post.move);
+		this._post.move = this._post.move.concat(options.post.move);
 	}
 	
 }
@@ -65,8 +73,40 @@ util.inherits(localfiles, super_);
 
 
 /**
- * Registers the field on the List's Mongoose Schema.
+ * Allows you to add pre middleware after the field has been initialised
  *
+ * @api public
+ */
+
+localfiles.prototype.pre = function(event, fn) {
+	if (!this._pre[event]) {
+		throw new Error('localfiles (' + this.list.key + '.' + this.path + ') error: localfiles.pre()\n\n' +
+			'Event ' + event + ' is not supported.\n');
+	}
+	this._pre[event].push(fn);
+	return this;
+};
+
+
+/**
+ * Allows you to add post middleware after the field has been initialised
+ *
+ * @api public
+ */
+
+localfiles.prototype.post = function(event, fn) {
+	if (!this._post[event]) {
+		throw new Error('localfiles (' + this.list.key + '.' + this.path + ') error: localfiles.post()\n\n' +
+			'Event ' + event + ' is not supported.\n');
+	}
+	this._post[event].push(fn);
+	return this;
+};
+
+
+/**
+ * Registers the field on the List's Mongoose Schema.
+ * 由父类来调用了
  * @api public
  */
 
@@ -75,10 +115,10 @@ localfiles.prototype.addToSchema = function() {
 	var field = this,
 		schema = this.list.schema;
 	var mongoose = keystone.mongoose;
-
+	
 	var paths = this.paths = {
 		// fields
-		filename:		this._path.append('.filename'),
+		filename:		this._path.append('.filename'),//给当前字段路径添加子路径,只能添加到二维
 		path:			  this._path.append('.path'),
 		size:			  this._path.append('.size'),
 		filetype:		this._path.append('.filetype'),
@@ -86,17 +126,17 @@ localfiles.prototype.addToSchema = function() {
 		exists:			this._path.append('.exists'),
 		upload:			this._path.append('_upload'),
 		action:			this._path.append('_action'),
-		order: 			this._path.append('_order')
+		order: 			this._path.append('_order'),
 	};
 
-	var schemaPaths = new mongoose.Schema({
+	var schemaPaths = new mongoose.Schema({//给当前字段添加子模式
 		filename:		String,
 		path:			String,
 		size:			Number,
 		filetype:		String
 	});
-
-	schema.add(this._path.addTo({}, [schemaPaths]));
+	//相当于生成一个{videos:{xxxxx}}
+	schema.add(this._path.addTo({}, [schemaPaths]));//这是mongoose添加数组数据的方法
 
 	var exists = function(item, element_id) {
 		var values = item.get(field.path);
@@ -131,10 +171,10 @@ localfiles.prototype.addToSchema = function() {
 	schema.virtual(paths.exists).get(function() {
 		return schemaMethods.exists.apply(this);
 	});
-
+	//重置当前字段的所有值
 	var reset = function(item, element_id) {
 		if (typeof element_id === 'undefined') {
-			item.set(field.path, []);
+			item.set(field.path, []);//根据指定路径将当前文档的属性设置为空数组
 		} else {
 			var values = item.get(field.path);
 			var value = _.findWhere(values, { 'id': element_id });
@@ -143,7 +183,7 @@ localfiles.prototype.addToSchema = function() {
 			}
 		}
 	};
-
+	//document方法
 	var schemaMethods = {
 		exists: function() {
 			return exists(this);
@@ -161,7 +201,7 @@ localfiles.prototype.addToSchema = function() {
 		 *
 		 * @api public
 		 */
-		delete: function(element_id) {
+		remove: function(element_id) {
 			if (exists(this, element_id)) {
 				var values = this.get(field.path);
 				var value = _.findWhere(values, { 'id': element_id });
@@ -172,7 +212,7 @@ localfiles.prototype.addToSchema = function() {
 			reset(this, element_id);
 		}
 	};
-
+	//将schema方法装箱到field所在的list中的underscoreMethods对象里,同时生成一个与当前list结构一致的dsl操作器
 	_.each(schemaMethods, function(fn, key) {
 		field.underscoreMethod(key, fn);
 	});
@@ -279,7 +319,7 @@ localfiles.prototype.uploadFiles = function(item, files, update, callback) {
 		callback = update;
 		update = false;
 	}
-	
+	//遍历所有文件，
 	async.map(files, function(file, processedFile) {
 		
 		var prefix = field.options.datePrefix ? moment().format(field.options.datePrefix) + '-' : '',
@@ -289,6 +329,8 @@ localfiles.prototype.uploadFiles = function(item, files, update, callback) {
 		if (field.options.allowedTypes && !_.contains(field.options.allowedTypes, filetype)) {
 			return processedFile(new Error('Unsupported File Type: ' + filetype));
 		}
+
+		
 		
 		var doMove = function(doneMove) {
 			
@@ -315,23 +357,23 @@ localfiles.prototype.uploadFiles = function(item, files, update, callback) {
 			
 		};
 		
-		field.hooks('pre:move', function(fn, next) {
+		async.eachSeries(field._pre.move, function(fn, next) {
 			fn(item, file, next);
 		}, function(err) {
 			if (err) return processedFile(err);
 			
-			doMove(function(err, fileData) {
+			doMove(function(err, fileData) {//移动文件后将文件元数据传出来
 				if (err) return processedFile(err);
 				
-				field.hooks('post:move', function(fn, next) {
+				async.eachSeries(field._post.move, function(fn, next) {//执行中间件
 					fn(item, file, fileData, next);
 				}, function(err) {
-					return processedFile(err, fileData);
+					return processedFile(err, fileData);//如果出错将错误信息和当前文件元数据传出去
 				});
 			});
 		});
 		
-	}, callback);
+	}, callback);//此处接受迭代器processedFile调用时传递的err和fileData
 	
 };
 
@@ -340,7 +382,7 @@ localfiles.prototype.uploadFiles = function(item, files, update, callback) {
  * Returns a callback that handles a standard form submission for the field
  *
  * Expected form parts are
- * - `field.paths.action` in `req.body` (`clear` or `delete`)
+ * - `field.paths.action` in `req.body` (`clear` or `delete`)意思是从req.body里取出action字段通过该字段来分别映射不同的请求处理器
  * - `field.paths.upload` in `req.files` (uploads the file to localfiles)
  *
  * @api public
@@ -349,7 +391,7 @@ localfiles.prototype.uploadFiles = function(item, files, update, callback) {
 localfiles.prototype.getRequestHandler = function(item, req, paths, callback) {
 
 	var field = this;
-
+	
 	if (utils.isFunction(paths)) {
 		callback = paths;
 		paths = field.paths;
@@ -370,20 +412,17 @@ localfiles.prototype.getRequestHandler = function(item, req, paths, callback) {
 				return (newOrder.indexOf(a._id.toString()) > newOrder.indexOf(b._id.toString())) ? 1 : -1;
 			});
 		}
-
 		// Removals
 		if (req.body && req.body[paths.action]) {
 			var actions = req.body[paths.action].split('|');
-
 			actions.forEach(function(action) {
-
 				action = action.split(':');
 
 				var method = action[0],
 					ids = action[1];
-
-				if (!(/^(delete|reset)$/.test(method)) || !ids) return;
-
+				
+				if (!(/^(remove|reset)$/.test(method)) || !ids) return;
+				
 				ids.split(',').forEach(function(id) {
 					field.apply(item, method, id);
 				});

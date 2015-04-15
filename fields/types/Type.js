@@ -24,7 +24,6 @@ var _ = require('underscore'),
  */
 
 function Field(list, path, options) {
-
 	// Set field properties and options
 	this.list = list;
 	this._path = new Path(path);

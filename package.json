@@ -9,28 +9,27 @@
   },
   "dependencies": {
     "async": "~0.9.0",
-    "asyncdi": "^1.1.0",
-    "azure": "~0.10.5",
+    "asyncdi": "^1.0.0",
+    "azure": "~0.10.4",
     "bcrypt-nodejs": "~0.0.3",
-    "blacklist": "^1.1.1",
-    "bluebird": "~2.9.24",
-    "body-parser": "~1.12.2",
+    "bluebird": "~2.9.13",
+    "body-parser": "~1.12.0",
     "browserify-shim": "^3.8.3",
     "bytes": "^1.0.0",
     "caller-id": "^0.1.0",
-    "classnames": "^1.2.0",
+    "classnames": "^1.1.4",
     "cloudinary": "~1.1.2",
-    "codemirror": "^5.1.0",
-    "compression": "~1.4.3",
+    "codemirror": "^5.0.0",
+    "compression": "~1.4.1",
     "connect-flash": "~0.1.1",
     "cookie-parser": "~1.3.4",
     "csv": "~0.3.7",
-    "debug": "^2.1.3",
+    "debug": "^2.1.2",
     "embedly": "~1.0.4",
-    "errorhandler": "~1.3.5",
-    "express": "~4.12.3",
-    "express-session": "~1.10.4",
-    "fs-extra": "~0.18.0",
+    "errorhandler": "~1.3.4",
+    "express": "~4.12.2",
+    "express-session": "~1.10.3",
+    "fs-extra": "~0.16.5",
     "gulp-streamify": "0.0.5",
     "gulp-uglify": "^1.1.0",
     "jade": "~1.9.2",
@@ -40,48 +39,47 @@
     "less-middleware": "~2.0.1",
     "mandrill-api": "~1.0.41",
     "marked": "~0.3.3",
-    "method-override": "~2.3.2",
+    "method-override": "~2.3.1",
     "moment": "~2.9.0",
-    "mongoose": "~3.8.25",
-    "morgan": "~1.5.2",
+    "mongoose": "~3.8.24",
+    "morgan": "~1.5.1",
     "mpromise": "~0.5.5",
     "multer": "~0.1.8",
     "numeral": "~1.5.3",
     "pikaday": "^1.3.2",
     "queryfilter": "~0.0.4",
     "range_check": "~0.0.5",
-    "react": "~0.13.1",
-    "react-select": "~0.4.5",
+    "react": "~0.12.2",
+    "react-select": "~0.3.5",
     "scmp": "~1.0.0",
-    "semver": "~4.3.3",
+    "semver": "~4.3.1",
     "serve-favicon": "~2.2.0",
-    "store-prototype": "^1.0.1",
-    "superagent": "^1.1.0",
-    "underscore": "^1.8.3",
+    "superagent": "^0.21.0",
+    "underscore": "^1.7.0",
     "vkey": "^1.0.0"
   },
   "devDependencies": {
-    "babel-eslint": "^2.0.2",
-    "browserify": "~9.0.6",
+    "browserify": "~9.0.3",
     "chalk": "~1.0.0",
     "codeclimate-test-reporter": "0.0.4",
     "del": "^1.1.1",
-    "eslint": "^0.18.0",
-    "eslint-plugin-react": "^2.0.2",
     "gulp": "~3.8.11",
-    "gulp-rename": "~1.2.2",
+    "gulp-rename": "~1.2.0",
     "gulp-util": "~3.0.4",
-    "gulp-watch": "~4.2.2",
-    "istanbul": "^0.3.13",
+    "gulp-watch": "~4.1.1",
+    "istanbul": "^0.3.7",
+    "jscs": "^1.11.3",
+    "jshint-stylish": "~1.0.1",
+    "jsxhint": "^0.12.1",
     "mocha": "^2.2.1",
     "must": ">= 0.12 < 1",
-    "reactify": "~1.1.0",
+    "reactify": "~1.0.0",
     "rimraf": "^2.3.2",
-    "should": "^5.2.0",
-    "sinon": "~1.14.1",
+    "should": "^5.1.0",
+    "sinon": "~1.13.0",
     "supertest": "~0.15.0",
     "vinyl-source-stream": "~1.1.0",
-    "watchify": "~3.1.0"
+    "watchify": "~2.4.0"
   },
   "browserify": {
     "transform": [
@@ -97,7 +95,9 @@
     "pikaday": "global.Pikaday",
     "moment": "global.moment"
   },
-  "author": "Jed Watson",
+  "author": {
+    "name": "Jed Watson"
+  },
   "homepage": "http://keystonejs.com/",
   "license": "MIT",
   "keywords": [
@@ -113,19 +113,39 @@
     "website",
     "forms"
   ],
-  "readmeFilename": "README.md",
   "gitHead": "ef3fd612285315ea8e12f68da4c8d6031e2c7fe7",
   "bugs": {
     "url": "https://github.com/keystonejs/keystone/issues"
   },
   "scripts": {
     "test": "mocha",
-    "lint": "eslint ./; true",
+    "lint": "jsxhint --reporter=node_modules/jshint-stylish/stylish.js .",
+    "style": "jscs .",
     "test-cov": "npm run clean && istanbul cover ./node_modules/mocha/bin/_mocha",
     "clean": "rimraf ./coverage"
   },
   "engines": {
     "node": ">= 0.10.28",
     "npm": ">= 1.4.9"
-  }
+  },
+  "_id": "keystone@0.3.4",
+  "_shasum": "41f87697215ce48ad8dac629c58412a96f7fee8a",
+  "_from": "keystone@0.3.4",
+  "_npmVersion": "1.4.28",
+  "_npmUser": {
+    "name": "jedwatson",
+    "email": "jed.watson@me.com"
+  },
+  "maintainers": [
+    {
+      "name": "jedwatson",
+      "email": "jed.watson@me.com"
+    }
+  ],
+  "dist": {
+    "shasum": "41f87697215ce48ad8dac629c58412a96f7fee8a",
+    "tarball": "http://registry.npmjs.org/keystone/-/keystone-0.3.4.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/keystone/-/keystone-0.3.4.tgz"
 }

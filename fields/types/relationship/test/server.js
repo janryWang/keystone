@@ -25,10 +25,8 @@ exports.testFieldType = function(List) {
 			text: 'value',
 			testRelationship: testItem._id
 		}).save(function(err, data) {
-			if (err) {
+			if (err)
 				throw new err;
-			}
-			
 			demand(data.testRelationship).equal(testItem._id);
 			demand(data.text).equal('value');
 			done();

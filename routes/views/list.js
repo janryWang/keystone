@@ -1,6 +1,7 @@
 var keystone = require('../../'),
 	_ = require('underscore'),
-	querystring = require('querystring');
+	querystring = require('querystring'),
+	async = require('async');
 
 exports = module.exports = function(req, res) {
 	

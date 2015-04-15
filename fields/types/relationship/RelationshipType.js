@@ -69,7 +69,8 @@ relationship.prototype.addToSchema = function() {
 		ref: this.options.ref,
 		index: (this.options.index ? true : false),
 		required: (this.options.required ? true : false),
-		unique: (this.options.unique ? true : false)
+		unique: (this.options.unique ? true : false),
+		es_indexed:(this.options.es_indexed ? true : false)
 	};
 
 	schema.path(this.path, this.many ? [def] : def);
@@ -228,7 +229,7 @@ relationship.prototype.addFilters = function(query, item) {
 		}
 		query.where(path);
 		_.each(filters, function(value, method) {
-			if ('string' === typeof value && value.substr(0, 1) === ':') {
+			if ('string' === typeof value && value.substr(0,1) === ':') {
 				if (!item) {
 					return;
 				}

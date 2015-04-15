@@ -20,9 +20,9 @@ module.exports = Field.create({
 		};
 	},
 
-	initWysiwyg: function() {
+	componentDidMount: function() {
 		if (!this.props.wysiwyg) return;
-
+		
 		var self = this;
 		var opts = this.getOptions();
 
@@ -35,16 +35,6 @@ module.exports = Field.create({
 
 		this._currentValue = this.props.value;
 		tinymce.init(opts);
-	},
-
-	componentDidUpdate: function(prevProps, prevState) {
-		if (prevState.isCollapsed && !this.state.isCollapsed) {
-			this.initWysiwyg();
-		}
-	},
-
-	componentDidMount: function() {
-		this.initWysiwyg();
 	},
 	
 	componentWillReceiveProps: function(nextProps) {
@@ -77,13 +67,13 @@ module.exports = Field.create({
 	},
 
 	getOptions: function() {
-		var plugins = ['code', 'link'],
-			options = _.defaults(
-				{},
-				this.props.wysiwyg,
-				Keystone.wysiwyg.options
-			),
-			toolbar = options.overrideToolbar ? '' : 'bold italic | alignleft aligncenter alignright | bullist numlist | outdent indent | link';
+  		var plugins = ['code', 'link'],
+  			options = _.defaults(
+  				{},
+             	this.props.wysiwyg,
+             	Keystone.wysiwyg.options
+         	),
+  			toolbar = options.overrideToolbar ? '' : 'bold italic | alignleft aligncenter alignright | bullist numlist | outdent indent | link';
 
 		if (options.enableImages) {
 			plugins.push('image');

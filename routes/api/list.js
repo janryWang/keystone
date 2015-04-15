@@ -61,7 +61,7 @@ exports = module.exports = function(req, res) {
 						total: total,
 						items: items.map(function(i) {
 							return {
-								name: req.list.getDocumentName(i, false) || '(' + i.id + ')',
+								name: req.list.getDocumentName(i, true) || '(' + i.id + ')',
 								id: i.id
 							};
 						})
@@ -84,7 +84,7 @@ exports = module.exports = function(req, res) {
 				switch (req.query.dataset) {
 					case 'simple':
 						return sendResponse({
-							name: req.list.getDocumentName(item, false),
+							name: req.list.getDocumentName(item, true),
 							id: item.id
 						});
 					default:
@@ -156,7 +156,7 @@ exports = module.exports = function(req, res) {
 				} else {
 					return sendResponse({
 						success: true,
-						name: req.list.getDocumentName(item, false),
+						name: req.list.getDocumentName(item, true),
 						id: item.id
 					});
 				}

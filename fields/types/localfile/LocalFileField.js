@@ -7,10 +7,6 @@ var _ = require('underscore'),
 
 module.exports = Field.create({
 	
-	shouldCollapse: function() {
-		return this.props.collapse && !this.hasExisting();
-	},
-
 	fileFieldNode: function() {
 		return this.refs.fileField.getDOMNode();
 	},
@@ -36,7 +32,7 @@ module.exports = Field.create({
 	},
 
 	undoRemove: function() {
-		this.fileFieldNode().value = '';
+		this.fileFieldNode().value = "";
 		this.setState({
 			removeExisting: false,
 			localSource:    null,
@@ -47,7 +43,7 @@ module.exports = Field.create({
 
 	fileChanged: function (event) {
 		this.setState({
-			origin: 'local'
+			origin: "local"
 		});
 	},
 
@@ -58,21 +54,21 @@ module.exports = Field.create({
 		};
 
 		if (this.hasLocal()) {
-			this.fileFieldNode().value = '';
+			this.fileFieldNode().value = "";
 		} else if (this.hasExisting()) {
 			state.removeExisting = true;
 
 			if (this.props.autoCleanup) {
 				if (e.altKey) {
-					state.action = 'reset';
+					state.action = "reset";
 				} else {
-					state.action = 'delete';
+					state.action = "delete";
 				}
 			} else {
 				if (e.altKey) {
-					state.action = 'delete';
+					state.action = "delete";
 				} else {
-					state.action = 'reset';
+					state.action = "reset";
 				}
 			}
 		}
@@ -81,7 +77,7 @@ module.exports = Field.create({
 	},
 
 	hasLocal: function() {
-		return this.state.origin === 'local';
+		return this.state.origin === "local";
 	},
 
 	hasFile: function() {
@@ -94,7 +90,7 @@ module.exports = Field.create({
 
 	getFilename: function() {
 		if (this.hasLocal()) {
-			return this.fileFieldNode().value.split('\\').pop();
+			return this.fileFieldNode().value.split("\\").pop();
 		} else {
 			return this.props.value.filename;
 		}
@@ -120,7 +116,7 @@ module.exports = Field.create({
 			return <div className='upload-queued pull-left'>
 				<div className='alert alert-success'>File selected - save to upload</div>
 			</div>;
-		} else if (this.state.origin === 'cloudinary') {
+		} else if (this.state.origin === "cloudinary") {
 			return <div className='select-queued pull-left'>
 				<div className='alert alert-success'>File selected from Cloudinary</div>
 			</div>;
